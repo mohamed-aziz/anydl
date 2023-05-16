@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "anydl"
+version = "0.1.0"
+description = ""
+authors = ["mohamed-aziz <me@aziz.tn>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.9.*"
+requests = "^2.30.0"
+python-telegram-bot = "13.14"
+boto3 = "^1.26.133"
+tiktokapi = "5.2.2"
+yt-dlp = "^2023.3.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

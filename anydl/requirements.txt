@@ -1,0 +1,5 @@
+requests
+python-telegram-bot==13.14
+boto3
+TikTokApi==5.2.2
+yt-dlp
