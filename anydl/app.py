@@ -1,5 +1,6 @@
 import enum
 import tempfile
+from typing import Optional
 import boto3
 from telegram import Bot, Update
 import json
@@ -26,7 +27,7 @@ class VideoTypes(enum.Enum):
     YOUTUBE_VIDEO = 2
     INSTAGRAM_VIDEO = 3
 
-def get_video_type(url):
+def get_video_type(url) -> Optional[VideoTypes]:
     if "tiktok.com" in url:
         return VideoTypes.TIKTOK_VIDEO
     elif "youtube.com" in url or "youtu.be" in url:
@@ -120,6 +121,12 @@ def download(ctx, chat_id, url, dl_func):
         ctx.bot.send_video(chat_id=chat_id, video=video, caption=fmt(result, chunk_number, n_chunks))
 
 
+DOWNLOAD_FUNC = {
+    VideoTypes.TIKTOK_VIDEO: download_yt_dlp,
+    VideoTypes.YOUTUBE_VIDEO: download_yt_dlp,
+    VideoTypes.INSTAGRAM_VIDEO: download_yt_dlp
+}
+
 def dl(update, context):
     
     chat_id = update.message.chat_id
@@ -131,12 +138,12 @@ def dl(update, context):
     assert len(urls) >= 1
     url = urls[0]
     video_type = get_video_type(url)
-    if video_type == VideoTypes.TIKTOK_VIDEO:
-        download(context, chat_id, url, download_yt_dlp)
-    elif video_type == VideoTypes.YOUTUBE_VIDEO:
-        download(context, chat_id, url, download_yt_dlp)
-    elif video_type == VideoTypes.INSTAGRAM_VIDEO:
-        download(context, chat_id, url, download_yt_dlp)
+    if not video_type:
+        context.bot.send_message(chat_id=chat_id, text="Unsupported video type")
+        return
+
+    dl_func = DOWNLOAD_FUNC[video_type]
+    download(context, chat_id, url, dl_func)
 
 def lambda_handler(event, context):
     dispatcher.add_handler(MessageHandler(Filters.text, dl))
