@@ -26,6 +26,8 @@ class VideoTypes(enum.Enum):
     TIKTOK_VIDEO = 1
     YOUTUBE_VIDEO = 2
     INSTAGRAM_VIDEO = 3
+    TWITTER_VIDEO = 4
+    FACEBOOK_VIDEO = 5
 
 def get_video_type(url) -> Optional[VideoTypes]:
     if "tiktok.com" in url:
@@ -34,6 +36,11 @@ def get_video_type(url) -> Optional[VideoTypes]:
         return VideoTypes.YOUTUBE_VIDEO
     elif "instagram.com" in url:
         return VideoTypes.INSTAGRAM_VIDEO
+    elif "twitter.com" in url:
+        return VideoTypes.TWITTER_VIDEO
+    elif "facebook.com" in url or "fb.watch" in url or "fb.com" in url:
+        return VideoTypes.FACEBOOK_VIDEO
+
 
 def download_tiktok(url):
     from TikTokApi import TikTokApi
@@ -124,7 +131,9 @@ def download(ctx, chat_id, url, dl_func):
 DOWNLOAD_FUNC = {
     VideoTypes.TIKTOK_VIDEO: download_yt_dlp,
     VideoTypes.YOUTUBE_VIDEO: download_yt_dlp,
-    VideoTypes.INSTAGRAM_VIDEO: download_yt_dlp
+    VideoTypes.INSTAGRAM_VIDEO: download_yt_dlp,
+    VideoTypes.TWITTER_VIDEO: download_yt_dlp,
+    VideoTypes.FACEBOOK_VIDEO: download_yt_dlp,
 }
 
 def dl(update, context):
