@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   anydl
@@ -18,15 +18,30 @@ Globals:
 Resources:
   AnyDLFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:      
+    Properties:
       PackageType: Image
       Policies:
-        - Version: '2012-10-17'
+        - Version: "2012-10-17"
+          Statement:
+            - Sid: DynamoDBCrudPolicy
+              Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:DeleteItem
+                - dynamodb:PutItem
+                - dynamodb:Scan
+                - dynamodb:Query
+                - dynamodb:UpdateItem
+                - dynamodb:BatchWriteItem
+                - dynamodb:BatchGetItem
+                - dynamodb:DescribeTable
+              Resource: "arn:aws:dynamodb:eu-west-3:432189592299:table/anydl_users"
+        - Version: "2012-10-17"
           Statement:
             - Sid: AWSSecretsManagerGetSecretValuePolicy
               Effect: Allow
               Action: secretsmanager:GetSecretValue
-              Resource: 'arn:aws:secretsmanager:eu-west-3:432189592299:secret:prod/anydl-GrwlDe'
+              Resource: "arn:aws:secretsmanager:eu-west-3:432189592299:secret:prod/anydl-GrwlDe"
       Architectures:
         - x86_64
       Events:
@@ -51,7 +66,7 @@ Resources:
     Properties:
       ResourceGroupName:
         Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
+      AutoConfigurationEnabled: "true"
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

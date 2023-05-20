@@ -1,4 +1,5 @@
 import enum
+import time
 import tempfile
 from typing import Optional
 import boto3
@@ -14,12 +15,13 @@ region = 'eu-west-3'
 secret_name = 'prod/anydl'
 
 client = boto3.client(service_name='secretsmanager', region_name=region)
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('anydl_users')
 response = client.get_secret_value(SecretId=secret_name)
 telegram_key = json.loads(response['SecretString'])['TELEGRAM_KEY']
 
 bot = Bot(token=telegram_key)
-dispatcher = Dispatcher(bot, None, use_context=True)
-
+dispatcher = Dispatcher(bot, None, use_context=True) # type: ignore
     
 
 class VideoTypes(enum.Enum):
@@ -153,6 +155,16 @@ def dl(update, context):
 
     dl_func = DOWNLOAD_FUNC[video_type]
     download(context, chat_id, url, dl_func)
+    table.put_item(
+        Item={
+            'chat_id': str(chat_id),
+            'url': url,
+            'timestamp': int(time.time()),
+            'video_type': video_type.name,
+            'user_id': update.message.from_user.id,
+            'username': update.message.from_user.username,
+        }
+    )
 
 def lambda_handler(event, context):
     dispatcher.add_handler(MessageHandler(Filters.text, dl))
